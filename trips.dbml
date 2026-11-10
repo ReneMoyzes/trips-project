@@ -24,9 +24,11 @@ Table trips.participants {
   member_id integer [not null, ref: > trips.members.member_id]
   trip_id integer [not null, ref: > trips.trips.trip_id]
   is_active boolean [not null, default: true]
+  is_leader boolean [not null, default: false, note: 'true = vedoucí výletu, false = běžný účastník. Role platí pouze pro tento výlet; výlet může mít více vedoucích.']
 
   Indexes {
     (member_id, trip_id) [unique]
+    trip_id
   }
 }
 
@@ -43,9 +45,15 @@ Table trips.expenses {
   amount numeric(10,2) [not null]
   occurred_at timestamptz [not null, default: `now()`]
   description text
+
+  Indexes {
+    trip_id
+  }
 }
 
 Table trips.expense_shares {
+  Note: 'Podíly výdajů přiřazené účastníkům. Vedoucímu se v ukázce podíly nepřiřazují; vyúčtování pouze sčítá uložené podíly. Účastník i výdaj musí patřit ke stejnému výletu – kontroluje aplikace.'
+
   expense_share_id integer [pk, increment]
   participant_id integer [not null, ref: > trips.participants.participant_id]
   expense_id integer [not null, ref: > trips.expenses.expense_id]
@@ -54,13 +62,18 @@ Table trips.expense_shares {
 
   Indexes {
     (participant_id, expense_id) [unique]
+    expense_id
   }
 }
 
 Table trips.payments {
   payment_id integer [pk, increment]
   participant_id integer [not null, ref: > trips.participants.participant_id]
-  is_confirmed boolean [not null, default: true]
+  is_confirmed boolean [not null, default: false]
   amount numeric(10,2) [not null]
   paid_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    participant_id
+  }
 }
