@@ -1,3 +1,7 @@
+//// Docs: https://dbml.dbdiagram.io/docs
+//// -- LEVEL 1
+//// -- Schemas, Tables and References
+
 Project trips {
   database_type: 'PostgreSQL'
   Note: 'Model pro evidenci výletů, účastníků, výdajů, jejich rozdělení a plateb.'

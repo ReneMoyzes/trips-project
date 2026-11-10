@@ -37,7 +37,7 @@ Model má **7 tabulek**. Vztah člena k výletu je typu mnoho-k-mnoha a realizuj
 
 ### ER diagram
 
-Soubor [`trips.dbml`](trips.dbml) obsahuje diagram pro import do [dbdiagram.io](https://dbdiagram.io/). Hlavní vztahy jsou:
+Soubor [`trips.dbml`](trips.dbml) obsahuje diagram, který lze vložit do editoru [dbdiagram.io](https://dbdiagram.io/). Hlavní vztahy jsou:
 
 ```text
 members 1 ── N participants N ── 1 trips (role účastník/vedoucí)
@@ -81,8 +81,8 @@ Ukázkový dotaz odpovídá na otázku: **Kolik má každý účastník doplatit
 
 ## 6. Spuštění v PostgreSQL
 
-1. V dbdiagram.io zvolte **Import** a nahrajte `trips.dbml`. Pro získání SQL z diagramu použijte export pro PostgreSQL; skript `trips.sql` je připravená varianta se vzorovými daty a kontrolními omezeními.
+1. V dbdiagram.io zkopírujte obsah `trips.dbml` do levého editoru. DBML je nativní syntaxe editoru a diagram se vykreslí automaticky. Menu **Import** přijímá pouze SQL, ne soubory `.dbml`. Pro získání SQL z diagramu použijte export pro PostgreSQL; skript `trips.sql` je připravená varianta se vzorovými daty a kontrolními omezeními.
 2. Pro novou databázi spusťte `trips.sql` jako uživatel s oprávněním vytvořit schéma a tabulky. Skript vloží ukázková data a na konci rovnou spustí vyúčtovací `SELECT`.
-3. Skript vytváří objekty bez `DROP`, proto je určen pro databázi, kde tabulky schématu `trips` ještě neexistují. Pro opakované spuštění nejprve odstraňte celé schéma příkazem `DROP SCHEMA trips CASCADE;` (smaže všechny jeho tabulky i data). Samostatný dotaz v [`vzorovy_select.sql`](vzorovy_select.sql) lze spouštět opakovaně; pro jiný výlet změňte `trip_id` v CTE `selected_trip`.
+3. Skript na začátku odstraní celé schéma příkazem `DROP SCHEMA IF EXISTS trips CASCADE;` a poté ho vytvoří znovu, proto jej lze spouštět opakovaně. Pozor: při každém spuštění se smažou všechny tabulky a data ve schématu `trips` i objekty v jiných schématech, které na ně závisí. Samostatný dotaz v [`vzorovy_select.sql`](vzorovy_select.sql) lze spouštět opakovaně; pro jiný výlet změňte `trip_id` v CTE `selected_trip`.
 
 DBML zachycuje strukturu a vztahy pro diagram a export. SQL skript je autoritativní spustitelná verze: kromě struktury doplňuje také kontroly hodnot a vzorová data.
