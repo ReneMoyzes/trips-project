@@ -1,5 +1,15 @@
 # Evidence databáze pro sdílení nákladů na výlety
 
+## Příběhové zadání
+
+Jmenuji se Anna a vedu skautský oddíl. Na výlety jezdíme v různém složení a po návratu často není jasné, kdo má kolik doplatit. Výdaje platíme na různých místech, účtenky se schovají v batohu nebo v mobilu a částky nakonec sčítám ručně.
+
+Nedávno jsme jeli na víkend do Prahy od 16. do 18. května. Jeli jsme tři: já, David a Eva. Předem jsem odhadla rozpočet na 8 000 Kč. Ubytování stálo 4 800 Kč, doprava 1 200 Kč a společné jídlo 1 800 Kč. Výdaje se nedělí vždy rovným dílem, proto chci u každého určit podíl jednotlivých účastníků. Tentokrát jsme celkových 7 800 Kč rozdělili mezi Davida a Evu, každému po 3 900 Kč; jako vedoucí náklady nenesu.
+
+Do společné kasy jsem vložila 3 000 Kč, David zaplatil 2 000 Kč a Eva 2 800 Kč. Platbu chci nejprve zaznamenat jako nepotvrzenou a započítat ji až po ověření. Po potvrzení plateb má vyúčtování ukázat, že David doplácí 1 900 Kč, Eva 1 100 Kč a mně se vrací 3 000 Kč.
+
+Potřebuji proto evidovat členy, výlety, účastníky a jejich role, kategorie a výdaje, podíly na jednotlivých výdajích i platby. Odhlášené účastníky ani neaktivní členy nechci mazat, protože jejich historie zůstává důležitá. Zůstatek se nemá ukládat jako ručně měněná hodnota, ale pokaždé vypočítat z podílů a potvrzených plateb. Pro první verzi stačí jedna měna; přihlašování, ukládání účtenek ani automatické platby nejsou součástí zadání.
+
 ## 1. Nápad a popis systému
 
 Systém pomáhá malé skupině naplánovat výlet a přehledně rozdělit společné výdaje mezi účastníky.  
@@ -75,14 +85,38 @@ participants 1 ── N payments
 
 ## 5. Ukázková data a dotaz
 
-Skript [`trips.sql`](trips.sql) vytvoří schéma a všech sedm tabulek, vloží vzorová data pro víkendový výlet do Prahy a obsahuje dotaz pro výpočet vyúčtování. Anna (vedoucí) nepřebírá podíl na výdajích; celkových 7 800,00 se rozdělí mezi Davida a Evu, každému po 3 900,00. Potvrzené platby jsou 3 000,00, 2 000,00 a 2 800,00. Výsledné rozdíly jsou doplatek 1 900,00 u Davida, doplatek 1 100,00 u Evy a −3 000,00 u vedoucí Anny: Anna zaplatila 3 000,00 do společného rozpočtu, přestože nemá žádný podíl, a doplatky Davida a Evy jí tuto částku vrátí. Součet zůstatků je proto nula. Očekávaný rozpočet výletu je 8 000,00, tedy o 200,00 vyšší než evidované výdaje.
+Skript [`trips.sql`](trips.sql) vytvoří schéma a všech sedm tabulek. Vzorová data pro víkendový výlet do Prahy jsou v [`trips.seed.sql`](trips.seed.sql) a dotaz pro výpočet vyúčtování v [`vzorovy_select.sql`](vzorovy_select.sql). Anna (vedoucí) nepřebírá podíl na výdajích; celkových 7 800,00 se rozdělí mezi Davida a Evu, každému po 3 900,00. Potvrzené platby jsou 3 000,00, 2 000,00 a 2 800,00. Výsledné rozdíly jsou doplatek 1 900,00 u Davida, doplatek 1 100,00 u Evy a −3 000,00 u vedoucí Anny: Anna zaplatila 3 000,00 do společného rozpočtu, přestože nemá žádný podíl, a doplatky Davida a Evy jí tuto částku vrátí. Součet zůstatků je proto nula. Očekávaný rozpočet výletu je 8 000,00, tedy o 200,00 vyšší než evidované výdaje.
 
-Ukázkový dotaz odpovídá na otázku: **Kolik má každý účastník doplatit, nebo kolik zaplatil navíc?** Je přiložen na konci `trips.sql` a samostatně také v souboru [`vzorovy_select.sql`](vzorovy_select.sql). Používá samostatné agregace podílů a plateb, aby spojení více výdajů a plateb neznásobilo částky. Podíly se k výletu přiřazují přes výdaj (`expenses.trip_id`), platby přes účastníka (`participants.trip_id`). Role se v agregaci podílů samostatně nefiltruje: rozhodující je, komu byl záznam v `expense_shares` přiřazen. Ve vzorovém souboru změňte `trip_id` v CTE `selected_trip`, pokud chcete zobrazit jiné vyúčtování.
+Ukázkový dotaz odpovídá na otázku: **Kolik má každý účastník doplatit, nebo kolik zaplatil navíc?** Je v souboru [`vzorovy_select.sql`](vzorovy_select.sql). Používá samostatné agregace podílů a plateb, aby spojení více výdajů a plateb neznásobilo částky. Podíly se k výletu přiřazují přes výdaj (`expenses.trip_id`), platby přes účastníka (`participants.trip_id`). Role se v agregaci podílů samostatně nefiltruje: rozhodující je, komu byl záznam v `expense_shares` přiřazen. Ve vzorovém souboru změňte `trip_id` v CTE `selected_trip`, pokud chcete zobrazit jiné vyúčtování.
 
 ## 6. Spuštění v PostgreSQL
 
-1. V dbdiagram.io zkopírujte obsah `trips.dbml` do levého editoru. DBML je nativní syntaxe editoru a diagram se vykreslí automaticky. Menu **Import** přijímá pouze SQL, ne soubory `.dbml`. Pro získání SQL z diagramu použijte export pro PostgreSQL; skript `trips.sql` je připravená varianta se vzorovými daty a kontrolními omezeními.
-2. Pro novou databázi spusťte `trips.sql` jako uživatel s oprávněním vytvořit schéma a tabulky. Skript vloží ukázková data a na konci rovnou spustí vyúčtovací `SELECT`.
+1. V dbdiagram.io zkopírujte obsah `trips.dbml` do levého editoru. DBML je nativní syntaxe editoru a diagram se vykreslí automaticky. Menu **Import** přijímá pouze SQL, ne soubory `.dbml`. SQL DDL lze vytvořit také lokálně pomocí DBML CLI (viz sekce 7).
+2. Pro novou databázi spusťte nejprve `trips.sql` a potom `trips.seed.sql` jako uživatel s oprávněním vytvořit schéma a tabulky. Pro výpočet vyúčtování spusťte `vzorovy_select.sql`.
 3. Skript na začátku odstraní celé schéma příkazem `DROP SCHEMA IF EXISTS trips CASCADE;` a poté ho vytvoří znovu, proto jej lze spouštět opakovaně. Pozor: při každém spuštění se smažou všechny tabulky a data ve schématu `trips` i objekty v jiných schématech, které na ně závisí. Samostatný dotaz v [`vzorovy_select.sql`](vzorovy_select.sql) lze spouštět opakovaně; pro jiný výlet změňte `trip_id` v CTE `selected_trip`.
 
 DBML zachycuje strukturu a vztahy pro diagram a export. SQL skript je autoritativní spustitelná verze: kromě struktury doplňuje také kontroly hodnot a vzorová data.
+
+## 7. Použití DBML CLI
+
+DBML CLI (`@dbml/cli`) převádí schéma mezi DBML a SQL z příkazové řádky. Vyžaduje Node.js 18 nebo novější. Nainstalujte jej globálně:
+
+```bash
+npm install -g @dbml/cli
+```
+
+Z kořenové složky projektu vytvořte PostgreSQL DDL z modelu:
+
+```bash
+dbml2sql trips.dbml --postgres -o trips.generated.sql
+```
+
+Výstup `trips.generated.sql` obsahuje SQL pro vytvoření tabulek a vztahů popsaných v `trips.dbml`. **Nenahrazuje projektové skripty**: neobsahuje vzorová data z `trips.seed.sql` ani dodatečná omezení `CHECK` z `trips.sql`. Projektový `trips.sql` navíc na začátku nevratně odstraní existující schéma `trips`; používejte jej pouze tehdy, když chcete schéma znovu vytvořit.
+
+Pro převod SQL DDL zpět do DBML slouží například:
+
+```bash
+sql2dbml schema.sql --postgres -o schema.dbml
+```
+
+Tento převod používejte na souboru obsahujícím pouze DDL. Projektový `trips.sql` začíná příkazem `DROP SCHEMA ... CASCADE`, který při spuštění smaže existující schéma `trips`; před použitím jiného SQL souboru zkontrolujte jeho obsah.
