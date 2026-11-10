@@ -1,0 +1,66 @@
+Project trips {
+  database_type: 'PostgreSQL'
+  Note: 'Model pro evidenci výletů, účastníků, výdajů, jejich rozdělení a plateb.'
+}
+
+Table trips.members {
+  member_id integer [pk, increment]
+  first_name varchar(50) [not null]
+  last_name varchar(50) [not null]
+  registered_at timestamptz [not null, default: `now()`]
+  is_active boolean [not null, default: true]
+}
+
+Table trips.trips {
+  trip_id integer [pk, increment]
+  name varchar(100) [not null]
+  starts_on date [not null]
+  ends_on date [not null]
+  expected_cost numeric(10,2)
+}
+
+Table trips.participants {
+  participant_id integer [pk, increment]
+  member_id integer [not null, ref: > trips.members.member_id]
+  trip_id integer [not null, ref: > trips.trips.trip_id]
+  is_active boolean [not null, default: true]
+
+  Indexes {
+    (member_id, trip_id) [unique]
+  }
+}
+
+Table trips.services {
+  service_id integer [pk, increment]
+  name varchar(90) [not null, unique]
+  is_active boolean [not null, default: true]
+}
+
+Table trips.expenses {
+  expense_id integer [pk, increment]
+  service_id integer [not null, ref: > trips.services.service_id]
+  trip_id integer [not null, ref: > trips.trips.trip_id]
+  amount numeric(10,2) [not null]
+  occurred_at timestamptz [not null, default: `now()`]
+  description text
+}
+
+Table trips.expense_shares {
+  expense_share_id integer [pk, increment]
+  participant_id integer [not null, ref: > trips.participants.participant_id]
+  expense_id integer [not null, ref: > trips.expenses.expense_id]
+  share_amount numeric(10,2) [not null]
+  description text
+
+  Indexes {
+    (participant_id, expense_id) [unique]
+  }
+}
+
+Table trips.payments {
+  payment_id integer [pk, increment]
+  participant_id integer [not null, ref: > trips.participants.participant_id]
+  is_confirmed boolean [not null, default: true]
+  amount numeric(10,2) [not null]
+  paid_at timestamptz [not null, default: `now()`]
+}
