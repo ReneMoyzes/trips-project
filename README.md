@@ -95,7 +95,7 @@ Ukázkový dotaz odpovídá na otázku: **Kolik má každý účastník doplatit
 2. Pro novou databázi spusťte nejprve `trips.sql` a potom `trips.seed.sql` jako uživatel s oprávněním vytvořit schéma a tabulky. Pro výpočet vyúčtování spusťte `vzorovy_select.sql`.
 3. Skript na začátku odstraní celé schéma příkazem `DROP SCHEMA IF EXISTS trips CASCADE;` a poté ho vytvoří znovu, proto jej lze spouštět opakovaně. Pozor: při každém spuštění se smažou všechny tabulky a data ve schématu `trips` i objekty v jiných schématech, které na ně závisí. Samostatný dotaz v [`vzorovy_select.sql`](vzorovy_select.sql) lze spouštět opakovaně; pro jiný výlet změňte `trip_id` v CTE `selected_trip`.
 
-DBML zachycuje strukturu a vztahy pro diagram a export. SQL skript je autoritativní spustitelná verze: kromě struktury doplňuje také kontroly hodnot a vzorová data.
+DBML zachycuje strukturu a vztahy pro diagram a export. Autoritativní spustitelnou podobou projektu jsou SQL skripty: `trips.sql` vytváří strukturu a doplňuje kontroly hodnot, `trips.seed.sql` vkládá vzorová data.
 
 ## 7. Použití DBML CLI
 
